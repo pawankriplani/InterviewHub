@@ -1,0 +1,84 @@
+CREATE TABLE IF NOT EXISTS Candidates (
+    candidate_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100),
+    email VARCHAR(100),
+    phone VARCHAR(15),
+    position_applied VARCHAR(100),
+    job_details TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS Interview_Rounds (
+    round_id INT PRIMARY KEY AUTO_INCREMENT,
+    round_name VARCHAR(100),
+    description TEXT
+);
+
+CREATE TABLE IF NOT EXISTS Interviewers (
+    interviewer_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100),
+    email VARCHAR(100),
+    department VARCHAR(100)
+);
+
+CREATE TABLE IF NOT EXISTS Candidate_Interviews (
+    candidate_interview_id INT PRIMARY KEY AUTO_INCREMENT,
+    candidate_id INT,
+    round_id INT,
+    scheduled_at DATETIME,
+    feedback TEXT,
+    status ENUM('Pending', 'In progress', 'Completed', 'Selected', 'Rejected') DEFAULT 'Pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (candidate_id) REFERENCES Candidates(candidate_id),
+    FOREIGN KEY (round_id) REFERENCES Interview_Rounds(round_id)
+);
+
+CREATE TABLE IF NOT EXISTS Candidate_Interviewers (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    candidate_interview_id INT NOT NULL,
+    interviewer_id INT NOT NULL,
+
+    FOREIGN KEY (candidate_interview_id) REFERENCES Candidate_Interviews(candidate_interview_id),
+    FOREIGN KEY (interviewer_id) REFERENCES Interviewers(interviewer_id)
+);
+
+
+-- Dummy data for Candidates
+INSERT INTO Candidates (name, email, phone, position_applied, job_details) VALUES
+('John Doe', 'john.doe@email.com', '1234567890', 'Software Engineer', 'Looking for a challenging role in backend development'),
+('Jane Smith', 'jane.smith@email.com', '2345678901', 'Product Manager', 'Experienced in Agile methodologies and team leadership'),
+('Mike Johnson', 'mike.johnson@email.com', '3456789012', 'Data Scientist', 'Expertise in machine learning and big data analytics'),
+('Emily Brown', 'emily.brown@email.com', '4567890123', 'UX Designer', 'Passionate about creating intuitive user interfaces'),
+('Chris Lee', 'chris.lee@email.com', '5678901234', 'DevOps Engineer', 'Skilled in CI/CD pipelines and cloud infrastructure');
+
+-- Dummy data for InterviewRounds
+INSERT INTO Interview_Rounds (round_name, description) VALUES
+('Technical Screen', 'Initial technical assessment to evaluate basic skills'),
+('Coding Challenge', 'In-depth coding exercise to assess problem-solving abilities'),
+('System Design', 'Discussion on designing scalable and efficient systems');
+
+-- Dummy data for Interviewers
+INSERT INTO Interviewers (name, email, department) VALUES
+('Alice Johnson', 'alice.johnson@company.com', 'Engineering'),
+('Bob Williams', 'bob.williams@company.com', 'Product'),
+('Carol Davis', 'carol.davis@company.com', 'Data Science'),
+('David Wilson', 'david.wilson@company.com', 'UX Design');
+
+-- Dummy data for Candidate_Interviews
+INSERT INTO Candidate_Interviews (candidate_id, round_id, scheduled_at, feedback, status) VALUES
+(1, 1, '2025-07-20 10:00:00', 'Good understanding of basic concepts', 'Completed'),
+(1, 2, '2025-07-22 14:00:00', 'Excellent problem-solving skills', 'Completed'),
+(2, 1, '2025-07-21 11:00:00', 'Strong communication skills', 'Completed'),
+(3, 1, '2025-07-23 09:00:00', 'Impressive knowledge of machine learning', 'Completed'),
+(4, 1, '2025-07-24 13:00:00', 'Creative approach to design challenges', 'In progress'),
+(5, 1, '2025-07-25 15:00:00', 'Solid understanding of DevOps practices', 'Pending');
+
+-- Dummy data for CandidateInterviewers
+INSERT INTO Candidate_Interviewers (candidate_interview_id, interviewer_id) VALUES
+(1, 1),
+(2, 1),
+(3, 2),
+(4, 3),
+(5, 4),
+(6, 1);
