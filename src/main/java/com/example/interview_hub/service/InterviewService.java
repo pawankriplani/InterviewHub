@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -30,20 +31,34 @@ public class InterviewService {
 
     public List<InterviewRoundResponse> getAllInterviewRounds() {
         List<InterviewRound> rounds = interviewRoundRepository.findAll();
-        return rounds.stream().map(this::mapToInterviewRoundResponse).collect(Collectors.toList());
-    }
-
-    private InterviewRoundResponse mapToInterviewRoundResponse(InterviewRound round) {
-        InterviewRoundResponse response = new InterviewRoundResponse();
-        response.setRoundId(round.getRoundId());
-        response.setRoundName(round.getRoundName());
-        response.setCandidates(mapToCandidateResponses(round.getCandidateInterviews()));
-        return response;
-    }
-
-    private List<CandidateResponse> mapToCandidateResponses(Set<CandidateInterview> candidateInterviews) {
-        return candidateInterviews.stream()
-                .map(this::mapToCandidateResponse)
+        
+        // First, get each candidate's latest interview based on highest round ID
+        Map<Integer, CandidateInterview> latestInterviews = rounds.stream()
+                .flatMap(round -> round.getCandidateInterviews().stream())
+                .collect(Collectors.groupingBy(
+                        interview -> interview.getCandidate().getCandidateId(),
+                        Collectors.collectingAndThen(
+                                Collectors.maxBy((i1, i2) -> i1.getRound().getRoundId().compareTo(i2.getRound().getRoundId())),
+                                optionalInterview -> optionalInterview.orElse(null)
+                        )
+                ));
+        
+        // Create responses only including candidates in their latest round
+        return rounds.stream()
+                .map(round -> {
+                    InterviewRoundResponse response = new InterviewRoundResponse();
+                    response.setRoundId(round.getRoundId());
+                    response.setRoundName(round.getRoundName());
+                    
+                    // Only include candidates whose latest round is this round
+                    List<CandidateResponse> candidates = latestInterviews.values().stream()
+                            .filter(interview -> interview != null && interview.getRound().getRoundId().equals(round.getRoundId()))
+                            .map(this::mapToCandidateResponse)
+                            .collect(Collectors.toList());
+                    
+                    response.setCandidates(candidates);
+                    return response;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -56,6 +71,7 @@ public class InterviewService {
         response.setJobDetails(interview.getCandidate().getJobDetails());
         response.setInterviewers(mapToInterviewerEmails(interview.getCandidateInterviewers()));
         response.setInterviewDateTime(interview.getScheduledAt());
+
         
         // Add manager information
         Integer managerId = interview.getCandidate().getManager().getUserId();
