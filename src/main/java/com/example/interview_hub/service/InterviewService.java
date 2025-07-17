@@ -42,6 +42,13 @@ public class InterviewService {
                                 optionalInterview -> optionalInterview.orElse(null)
                         )
                 ));
+
+        // Create a map of all interviews for each candidate
+        Map<Integer, List<CandidateInterview>> allCandidateInterviews = rounds.stream()
+                .flatMap(round -> round.getCandidateInterviews().stream())
+                .collect(Collectors.groupingBy(
+                        interview -> interview.getCandidate().getCandidateId()
+                ));
         
         // Create responses only including candidates in their latest round
         return rounds.stream()
@@ -53,7 +60,7 @@ public class InterviewService {
                     // Only include candidates whose latest round is this round
                     List<CandidateResponse> candidates = latestInterviews.values().stream()
                             .filter(interview -> interview != null && interview.getRound().getRoundId().equals(round.getRoundId()))
-                            .map(this::mapToCandidateResponse)
+                            .map(interview -> mapToCandidateResponse(interview, allCandidateInterviews.get(interview.getCandidate().getCandidateId())))
                             .collect(Collectors.toList());
                     
                     response.setCandidates(candidates);
@@ -62,7 +69,7 @@ public class InterviewService {
                 .collect(Collectors.toList());
     }
 
-    private CandidateResponse mapToCandidateResponse(CandidateInterview interview) {
+    private CandidateResponse mapToCandidateResponse(CandidateInterview interview, List<CandidateInterview> candidateInterviews) {
         CandidateResponse response = new CandidateResponse();
         response.setCandidateId(interview.getCandidate().getCandidateId());
         response.setName(interview.getCandidate().getName());
@@ -72,7 +79,6 @@ public class InterviewService {
         response.setInterviewers(mapToInterviewerEmails(interview.getCandidateInterviewers()));
         response.setInterviewDateTime(interview.getScheduledAt());
 
-        
         // Add manager information
         Integer managerId = interview.getCandidate().getManager().getUserId();
         User manager = userRepository.findById(managerId).orElse(null);
@@ -84,6 +90,21 @@ public class InterviewService {
             managerResponse.setEmployeeId(manager.getEmployeeId());
             response.setManager(managerResponse);
         }
+
+        // Add interview history
+        List<CandidateResponse.InterviewRoundHistory> history = candidateInterviews.stream()
+                .sorted((i1, i2) -> i1.getRound().getRoundId().compareTo(i2.getRound().getRoundId()))
+                .map(i -> {
+                    CandidateResponse.InterviewRoundHistory roundHistory = new CandidateResponse.InterviewRoundHistory();
+                    roundHistory.setRoundNumber(i.getRound().getRoundId());
+                    roundHistory.setRoundName(i.getRound().getRoundName());
+                    roundHistory.setStatus(i.getStatus().toString());
+                    roundHistory.setFeedback(i.getFeedback());
+                    return roundHistory;
+                })
+                .collect(Collectors.toList());
+
+        response.setInterviewHistory(history);
         
         return response;
     }
