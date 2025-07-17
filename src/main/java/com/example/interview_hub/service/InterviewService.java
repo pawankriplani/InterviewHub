@@ -11,6 +11,7 @@ import com.example.interview_hub.repository.InterviewRoundRepository;
 import com.example.interview_hub.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ public class InterviewService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public List<InterviewRoundResponse> getAllInterviewRounds() {
         List<InterviewRound> rounds = interviewRoundRepository.findAll();
         
@@ -80,8 +82,7 @@ public class InterviewService {
         response.setInterviewDateTime(interview.getScheduledAt());
 
         // Add manager information
-        Integer managerId = interview.getCandidate().getManager().getUserId();
-        User manager = userRepository.findById(managerId).orElse(null);
+        User manager = interview.getCandidate().getManager();
         if (manager != null) {
             ManagerResponse managerResponse = new ManagerResponse();
             managerResponse.setUserId(manager.getUserId());

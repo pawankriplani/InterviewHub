@@ -31,7 +31,7 @@ public class Candidate {
     @Column(name = "score")
     private Double score;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manager_id")
     private User manager;
 
