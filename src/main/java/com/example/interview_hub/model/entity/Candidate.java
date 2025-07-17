@@ -28,6 +28,9 @@ public class Candidate {
     @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 
+    @Column(name = "score")
+    private Double score;
+
     @ManyToOne
     @JoinColumn(name = "manager_id")
     private User manager;
@@ -95,5 +98,13 @@ public class Candidate {
 
     public void setManager(User manager) {
         this.manager = manager;
+    }
+
+    public Double getScore() {
+        return score;
+    }
+
+    public void setScore(Double score) {
+        this.score = score;
     }
 }

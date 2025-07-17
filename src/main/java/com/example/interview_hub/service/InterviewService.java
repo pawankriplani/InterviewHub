@@ -106,6 +106,9 @@ public class InterviewService {
 
         response.setInterviewHistory(history);
         
+        // Add score from candidate
+        response.setScore(interview.getCandidate().getScore());
+        
         return response;
     }
 

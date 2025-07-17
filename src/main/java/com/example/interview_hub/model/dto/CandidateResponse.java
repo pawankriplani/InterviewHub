@@ -13,6 +13,7 @@ public class CandidateResponse {
     private LocalDateTime interviewDateTime;
     private ManagerResponse manager;
     private List<InterviewRoundHistory> interviewHistory;
+    private Double score;
 
     public static class InterviewRoundHistory {
         private Integer roundNumber;
@@ -125,5 +126,13 @@ public class CandidateResponse {
 
     public void setInterviewHistory(List<InterviewRoundHistory> interviewHistory) {
         this.interviewHistory = interviewHistory;
+    }
+
+    public Double getScore() {
+        return score;
+    }
+
+    public void setScore(Double score) {
+        this.score = score;
     }
 }

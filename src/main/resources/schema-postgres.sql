@@ -7,6 +7,7 @@ CREATE TABLE candidates (
     job_details TEXT,
     manager_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    score DOUBLE PRECISION,
     FOREIGN KEY (manager_id) REFERENCES USERS(user_id)
 );
 
@@ -84,3 +85,6 @@ INSERT INTO Candidate_Interviewers (candidate_interview_id, interviewer_id) VALU
 (4, 3),
 (5, 4),
 (6, 1);
+
+-- Add score column to candidates table
+ALTER TABLE candidates ADD COLUMN score DOUBLE PRECISION;
