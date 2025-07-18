@@ -80,6 +80,7 @@ public class InterviewService {
         CandidateResponse response = new CandidateResponse();
         response.setCandidateId(interview.getCandidate().getCandidateId());
         response.setName(interview.getCandidate().getName());
+        response.setEmail(interview.getCandidate().getEmail());
         response.setStatus(interview.getStatus());
         response.setFeedback(interview.getFeedback());
         response.setJobDetails(interview.getCandidate().getJobDetails());
