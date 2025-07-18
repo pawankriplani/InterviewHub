@@ -89,6 +89,7 @@ public class InterviewService {
         response.setStatus(interview.getStatus());
         response.setFeedback(interview.getFeedback());
         response.setJobDetails(interview.getCandidate().getJobDetails());
+        response.setResumeId(interview.getCandidate().getResumeId());
         response.setInterviewerId(interview.getInterviewerId());
         response.setInterviewerEmail(interview.getInterviewerEmail());
         response.setScheduledAt(interview.getScheduledAt());

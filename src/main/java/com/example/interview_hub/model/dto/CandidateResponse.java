@@ -19,6 +19,7 @@ public class CandidateResponse {
     private ManagerResponse manager;
     private List<InterviewRoundHistory> interviewHistory;
     private Double score;
+    private String resumeId;
 
     public static class InterviewRoundHistory {
         private Integer roundNumber;
@@ -171,6 +172,14 @@ public class CandidateResponse {
 
     public void setScore(Double score) {
         this.score = score;
+    }
+
+    public String getResumeId() {
+        return resumeId;
+    }
+
+    public void setResumeId(String resumeId) {
+        this.resumeId = resumeId;
     }
 
     public String getEmail() {
