@@ -6,9 +6,14 @@ import com.example.interview_hub.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -121,6 +126,16 @@ public class InterviewService {
         response.setScore(interview.getCandidate().getScore());
         
         return response;
+    }
+
+    @Scheduled(cron = "0 */30 * * * *")  // Run every 30 minutes
+    @Transactional
+    public void updateCompletedInterviews() { 	
+    	logger.info("Starting scheduled task to update completed interviews");
+    	ZonedDateTime kolkataNow = ZonedDateTime.now(ZoneId.of("Asia/Kolkata"));
+    	LocalDateTime currentTime = kolkataNow.toLocalDateTime();
+    	candidateInterviewRepository.updateCompletedInterviews(currentTime);
+    	logger.info("Finished updating completed interviews at time: {}", currentTime);
     }
 
     @Transactional
