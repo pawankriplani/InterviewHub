@@ -6,6 +6,7 @@ import java.util.List;
 public class CandidateResponse {
     private Integer candidateId;
     private String name;
+    private String email;
     private String status;
     private String feedback;
     private String jobDetails;
@@ -170,5 +171,13 @@ public class CandidateResponse {
 
     public void setScore(Double score) {
         this.score = score;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
