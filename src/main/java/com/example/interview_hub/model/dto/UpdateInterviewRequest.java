@@ -6,10 +6,11 @@ import java.util.List;
 public class UpdateInterviewRequest {
     private Integer candidateId;
     private Integer roundId;
-    private List<Integer> interviewerIds;
+    private Integer interviewerId;
+    private String interviewerEmail;
     private String status;
-    private String email;
     private String meetingLink;
+    private LocalDateTime startMeetingTimeStamp;
     private LocalDateTime endMeetingTimeStamp;
 
     // Getters and Setters
@@ -29,12 +30,20 @@ public class UpdateInterviewRequest {
         this.roundId = roundId;
     }
 
-    public List<Integer> getInterviewerIds() {
-        return interviewerIds;
+    public Integer getInterviewerId() {
+        return interviewerId;
     }
 
-    public void setInterviewerIds(List<Integer> interviewerIds) {
-        this.interviewerIds = interviewerIds;
+    public void setInterviewerId(Integer interviewerId) {
+        this.interviewerId = interviewerId;
+    }
+
+    public String getInterviewerEmail() {
+        return interviewerEmail;
+    }
+
+    public void setInterviewerEmail(String interviewerEmail) {
+        this.interviewerEmail = interviewerEmail;
     }
 
     public String getStatus() {
@@ -45,20 +54,20 @@ public class UpdateInterviewRequest {
         this.status = status;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getMeetingLink() {
         return meetingLink;
     }
 
     public void setMeetingLink(String meetingLink) {
         this.meetingLink = meetingLink;
+    }
+
+    public LocalDateTime getStartMeetingTimeStamp() {
+        return startMeetingTimeStamp;
+    }
+
+    public void setStartMeetingTimeStamp(LocalDateTime startMeetingTimeStamp) {
+        this.startMeetingTimeStamp = startMeetingTimeStamp;
     }
 
     public LocalDateTime getEndMeetingTimeStamp() {

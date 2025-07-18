@@ -9,8 +9,12 @@ public class CandidateResponse {
     private String status;
     private String feedback;
     private String jobDetails;
-    private List<String> interviewers;
-    private LocalDateTime interviewDateTime;
+    private Integer interviewerId;
+    private String interviewerEmail;
+    private LocalDateTime scheduledAt;
+    private LocalDateTime startMeetingTs;
+    private LocalDateTime endMeetingTs;
+    private String meetingLink;
     private ManagerResponse manager;
     private List<InterviewRoundHistory> interviewHistory;
     private Double score;
@@ -96,20 +100,52 @@ public class CandidateResponse {
         this.jobDetails = jobDetails;
     }
 
-    public List<String> getInterviewers() {
-        return interviewers;
+    public Integer getInterviewerId() {
+        return interviewerId;
     }
 
-    public void setInterviewers(List<String> interviewers) {
-        this.interviewers = interviewers;
+    public void setInterviewerId(Integer interviewerId) {
+        this.interviewerId = interviewerId;
     }
 
-    public LocalDateTime getInterviewDateTime() {
-        return interviewDateTime;
+    public String getInterviewerEmail() {
+        return interviewerEmail;
     }
 
-    public void setInterviewDateTime(LocalDateTime interviewDateTime) {
-        this.interviewDateTime = interviewDateTime;
+    public void setInterviewerEmail(String interviewerEmail) {
+        this.interviewerEmail = interviewerEmail;
+    }
+
+    public LocalDateTime getScheduledAt() {
+        return scheduledAt;
+    }
+
+    public void setScheduledAt(LocalDateTime scheduledAt) {
+        this.scheduledAt = scheduledAt;
+    }
+
+    public LocalDateTime getStartMeetingTs() {
+        return startMeetingTs;
+    }
+
+    public void setStartMeetingTs(LocalDateTime startMeetingTs) {
+        this.startMeetingTs = startMeetingTs;
+    }
+
+    public LocalDateTime getEndMeetingTs() {
+        return endMeetingTs;
+    }
+
+    public void setEndMeetingTs(LocalDateTime endMeetingTs) {
+        this.endMeetingTs = endMeetingTs;
+    }
+
+    public String getMeetingLink() {
+        return meetingLink;
+    }
+
+    public void setMeetingLink(String meetingLink) {
+        this.meetingLink = meetingLink;
     }
 
     public ManagerResponse getManager() {

@@ -65,7 +65,7 @@ public class CandidateService {
                 CandidateInterview candidateInterview = new CandidateInterview();
                 candidateInterview.setCandidate(savedCandidate);
                 candidateInterview.setRound(round1);
-                candidateInterview.setStatus(CandidateInterview.InterviewStatus.PENDING);
+                candidateInterview.setStatus("Pending");
                 candidateInterview.setCreatedAt(java.time.LocalDateTime.now());
 
                 candidateInterviewRepository.save(candidateInterview);

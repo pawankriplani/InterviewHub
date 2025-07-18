@@ -2,7 +2,6 @@ package com.example.interview_hub.model.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @Entity
 @Table(name = "candidate_interviews")
@@ -19,8 +18,20 @@ public class CandidateInterview {
     @JoinColumn(name = "round_id")
     private InterviewRound round;
 
+    @Column(name = "interviewer_id")
+    private Integer interviewerId;
+
+    @Column(name = "interviewer_email", length = 100)
+    private String interviewerEmail;
+
     @Column(name = "scheduled_at")
     private LocalDateTime scheduledAt;
+
+    @Column(name = "start_meeting_ts")
+    private LocalDateTime startMeetingTs;
+
+    @Column(name = "end_meeting_ts")
+    private LocalDateTime endMeetingTs;
 
     @Column(columnDefinition = "TEXT")
     private String feedback;
@@ -28,55 +39,11 @@ public class CandidateInterview {
     @Column(name = "meeting_link")
     private String meetingLink;
 
-    @Convert(converter = InterviewStatusConverter.class)
-    @Column(columnDefinition = "ENUM('Pending', 'In progress', 'Completed', 'Selected', 'Rejected') DEFAULT 'Pending'")
-    private InterviewStatus status;
+    @Column(name = "status", columnDefinition = "VARCHAR(20) CHECK (status IN ('Pending', 'In progress', 'Completed', 'Selected', 'Rejected')) DEFAULT 'Pending'")
+    private String status;
 
     @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
-
-    @OneToMany(mappedBy = "candidateInterview")
-    private Set<CandidateInterviewer> candidateInterviewers;
-
-    public enum InterviewStatus {
-        PENDING("Pending"),
-        IN_PROGRESS("In progress"),
-        COMPLETED("Completed"),
-        SELECTED("Selected"),
-        REJECTED("Rejected");
-
-        private final String value;
-
-        InterviewStatus(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public static InterviewStatus fromValue(String value) {
-            for (InterviewStatus status : InterviewStatus.values()) {
-                if (status.value.equals(value)) {
-                    return status;
-                }
-            }
-            throw new IllegalArgumentException("Unknown status: " + value);
-        }
-    }
-
-    @Converter
-    public static class InterviewStatusConverter implements AttributeConverter<InterviewStatus, String> {
-        @Override
-        public String convertToDatabaseColumn(InterviewStatus status) {
-            return status != null ? status.getValue() : null;
-        }
-
-        @Override
-        public InterviewStatus convertToEntityAttribute(String value) {
-            return value != null ? InterviewStatus.fromValue(value) : null;
-        }
-    }
 
     // Getters and Setters
     public Integer getCandidateInterviewId() {
@@ -103,12 +70,44 @@ public class CandidateInterview {
         this.round = round;
     }
 
+    public Integer getInterviewerId() {
+        return interviewerId;
+    }
+
+    public void setInterviewerId(Integer interviewerId) {
+        this.interviewerId = interviewerId;
+    }
+
+    public String getInterviewerEmail() {
+        return interviewerEmail;
+    }
+
+    public void setInterviewerEmail(String interviewerEmail) {
+        this.interviewerEmail = interviewerEmail;
+    }
+
     public LocalDateTime getScheduledAt() {
         return scheduledAt;
     }
 
     public void setScheduledAt(LocalDateTime scheduledAt) {
         this.scheduledAt = scheduledAt;
+    }
+
+    public LocalDateTime getStartMeetingTs() {
+        return startMeetingTs;
+    }
+
+    public void setStartMeetingTs(LocalDateTime startMeetingTs) {
+        this.startMeetingTs = startMeetingTs;
+    }
+
+    public LocalDateTime getEndMeetingTs() {
+        return endMeetingTs;
+    }
+
+    public void setEndMeetingTs(LocalDateTime endMeetingTs) {
+        this.endMeetingTs = endMeetingTs;
     }
 
     public String getFeedback() {
@@ -127,11 +126,11 @@ public class CandidateInterview {
         this.meetingLink = meetingLink;
     }
 
-    public InterviewStatus getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(InterviewStatus status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 
@@ -141,13 +140,5 @@ public class CandidateInterview {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public Set<CandidateInterviewer> getCandidateInterviewers() {
-        return candidateInterviewers;
-    }
-
-    public void setCandidateInterviewers(Set<CandidateInterviewer> candidateInterviewers) {
-        this.candidateInterviewers = candidateInterviewers;
     }
 }

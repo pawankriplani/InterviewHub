@@ -9,12 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,20 +22,17 @@ public class InterviewService {
     private final UserRepository userRepository;
     private final CandidateInterviewRepository candidateInterviewRepository;
     private final CandidateRepository candidateRepository;
-    private final CandidateInterviewerRepository candidateInterviewerRepository;
 
     @Autowired
     public InterviewService(
             InterviewRoundRepository interviewRoundRepository,
             UserRepository userRepository,
             CandidateInterviewRepository candidateInterviewRepository,
-            CandidateRepository candidateRepository,
-            CandidateInterviewerRepository candidateInterviewerRepository) {
+            CandidateRepository candidateRepository) {
         this.interviewRoundRepository = interviewRoundRepository;
         this.userRepository = userRepository;
         this.candidateInterviewRepository = candidateInterviewRepository;
         this.candidateRepository = candidateRepository;
-        this.candidateInterviewerRepository = candidateInterviewerRepository;
     }
 
     @Transactional
@@ -87,11 +80,15 @@ public class InterviewService {
         CandidateResponse response = new CandidateResponse();
         response.setCandidateId(interview.getCandidate().getCandidateId());
         response.setName(interview.getCandidate().getName());
-        response.setStatus(interview.getStatus().toString());
+        response.setStatus(interview.getStatus());
         response.setFeedback(interview.getFeedback());
         response.setJobDetails(interview.getCandidate().getJobDetails());
-        response.setInterviewers(mapToInterviewerEmails(interview.getCandidateInterviewers()));
-        response.setInterviewDateTime(interview.getScheduledAt());
+        response.setInterviewerId(interview.getInterviewerId());
+        response.setInterviewerEmail(interview.getInterviewerEmail());
+        response.setScheduledAt(interview.getScheduledAt());
+        response.setStartMeetingTs(interview.getStartMeetingTs());
+        response.setEndMeetingTs(interview.getEndMeetingTs());
+        response.setMeetingLink(interview.getMeetingLink());
 
         // Add manager information
         User manager = interview.getCandidate().getManager();
@@ -111,7 +108,7 @@ public class InterviewService {
                     CandidateResponse.InterviewRoundHistory roundHistory = new CandidateResponse.InterviewRoundHistory();
                     roundHistory.setRoundNumber(i.getRound().getRoundId());
                     roundHistory.setRoundName(i.getRound().getRoundName());
-                    roundHistory.setStatus(i.getStatus().toString());
+                    roundHistory.setStatus(i.getStatus());
                     roundHistory.setFeedback(i.getFeedback());
                     return roundHistory;
                 })
@@ -123,12 +120,6 @@ public class InterviewService {
         response.setScore(interview.getCandidate().getScore());
         
         return response;
-    }
-
-    private List<String> mapToInterviewerEmails(Set<CandidateInterviewer> candidateInterviewers) {
-        return candidateInterviewers.stream()
-                .map(interviewer -> interviewer.getInterviewer().getEmail())
-                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -156,36 +147,18 @@ public class InterviewService {
                     });
 
             // Update interview details
-            interview.setStatus(CandidateInterview.InterviewStatus.IN_PROGRESS);
+            interview.setStatus("In progress");
             interview.setScheduledAt(request.getEndMeetingTimeStamp());
             interview.setMeetingLink(request.getMeetingLink());
+            interview.setInterviewerId(request.getInterviewerId());
+            interview.setInterviewerEmail(request.getInterviewerEmail());
+            interview.setStartMeetingTs(request.getStartMeetingTimeStamp());
+            interview.setEndMeetingTs(request.getEndMeetingTimeStamp());
 
             // Save the interview
             interview = candidateInterviewRepository.save(interview);
             logger.info("Interview updated successfully");
 
-            // Handle interviewer assignments
-            if (request.getInterviewerIds() != null && !request.getInterviewerIds().isEmpty()) {
-                // Remove existing interviewer assignments
-                candidateInterviewerRepository.deleteByCandidateInterviewCandidateInterviewId(interview.getCandidateInterviewId());
-                logger.info("Existing interviewer assignments removed");
-
-                // Create new interviewer assignments
-                for (Integer interviewerId : request.getInterviewerIds()) {
-                    CandidateInterviewer candidateInterviewer = new CandidateInterviewer();
-                    candidateInterviewer.setCandidateInterview(interview);
-                    
-                    // Set reference to existing interviewer
-                    Interviewer interviewer = new Interviewer();
-                    interviewer.setInterviewerId(interviewerId);
-                    candidateInterviewer.setInterviewer(interviewer);
-                    
-                    candidateInterviewerRepository.save(candidateInterviewer);
-                }
-                logger.info("New interviewer assignments created");
-            }
-
-            // Create response
             return new ApiResponse("Interview status updated successfully");
         } catch (Exception e) {
             logger.error("Error updating interview status", e);
