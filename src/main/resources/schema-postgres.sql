@@ -32,6 +32,7 @@ CREATE TABLE Candidate_Interviews (
     round_id INT,
     scheduled_at TIMESTAMP,
     feedback TEXT,
+    google_meet_link TEXT,
     status VARCHAR(20) CHECK (status IN ('Pending', 'In progress', 'Completed', 'Selected', 'Rejected')) DEFAULT 'Pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     

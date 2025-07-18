@@ -1,17 +1,16 @@
 package com.example.interview_hub.service;
 
-import com.example.interview_hub.model.dto.CandidateResponse;
-import com.example.interview_hub.model.dto.InterviewRoundResponse;
-import com.example.interview_hub.model.dto.ManagerResponse;
-import com.example.interview_hub.model.entity.CandidateInterview;
-import com.example.interview_hub.model.entity.CandidateInterviewer;
-import com.example.interview_hub.model.entity.InterviewRound;
-import com.example.interview_hub.model.entity.User;
-import com.example.interview_hub.repository.InterviewRoundRepository;
-import com.example.interview_hub.repository.UserRepository;
+import com.example.interview_hub.model.dto.*;
+import com.example.interview_hub.model.entity.*;
+import com.example.interview_hub.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 import java.util.List;
 import java.util.Map;
@@ -21,13 +20,26 @@ import java.util.stream.Collectors;
 @Service
 public class InterviewService {
 
+    private static final Logger logger = LoggerFactory.getLogger(InterviewService.class);
+
     private final InterviewRoundRepository interviewRoundRepository;
     private final UserRepository userRepository;
+    private final CandidateInterviewRepository candidateInterviewRepository;
+    private final CandidateRepository candidateRepository;
+    private final CandidateInterviewerRepository candidateInterviewerRepository;
 
     @Autowired
-    public InterviewService(InterviewRoundRepository interviewRoundRepository, UserRepository userRepository) {
+    public InterviewService(
+            InterviewRoundRepository interviewRoundRepository,
+            UserRepository userRepository,
+            CandidateInterviewRepository candidateInterviewRepository,
+            CandidateRepository candidateRepository,
+            CandidateInterviewerRepository candidateInterviewerRepository) {
         this.interviewRoundRepository = interviewRoundRepository;
         this.userRepository = userRepository;
+        this.candidateInterviewRepository = candidateInterviewRepository;
+        this.candidateRepository = candidateRepository;
+        this.candidateInterviewerRepository = candidateInterviewerRepository;
     }
 
     @Transactional
@@ -117,5 +129,67 @@ public class InterviewService {
         return candidateInterviewers.stream()
                 .map(interviewer -> interviewer.getInterviewer().getEmail())
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public ApiResponse updateInterviewStatus(UpdateInterviewRequest request) {
+        try {
+            logger.info("Updating interview status for candidate {} and round {}", request.getCandidateId(), request.getRoundId());
+
+            // Find or create CandidateInterview
+            CandidateInterview interview = candidateInterviewRepository
+                    .findByCandidateCandidateIdAndRoundRoundId(request.getCandidateId(), request.getRoundId())
+                    .orElseGet(() -> {
+                        CandidateInterview newInterview = new CandidateInterview();
+                        
+                        // Set candidate
+                        Candidate candidate = candidateRepository.findById(request.getCandidateId())
+                                .orElseThrow(() -> new RuntimeException("Candidate not found"));
+                        newInterview.setCandidate(candidate);
+                        
+                        // Set round
+                        InterviewRound round = interviewRoundRepository.findById(request.getRoundId())
+                                .orElseThrow(() -> new RuntimeException("Interview round not found"));
+                        newInterview.setRound(round);
+                        
+                        return newInterview;
+                    });
+
+            // Update interview details
+            interview.setStatus(CandidateInterview.InterviewStatus.IN_PROGRESS);
+            interview.setScheduledAt(request.getEndMeetingTimeStamp());
+            interview.setMeetingLink(request.getMeetingLink());
+
+            // Save the interview
+            interview = candidateInterviewRepository.save(interview);
+            logger.info("Interview updated successfully");
+
+            // Handle interviewer assignments
+            if (request.getInterviewerIds() != null && !request.getInterviewerIds().isEmpty()) {
+                // Remove existing interviewer assignments
+                candidateInterviewerRepository.deleteByCandidateInterviewCandidateInterviewId(interview.getCandidateInterviewId());
+                logger.info("Existing interviewer assignments removed");
+
+                // Create new interviewer assignments
+                for (Integer interviewerId : request.getInterviewerIds()) {
+                    CandidateInterviewer candidateInterviewer = new CandidateInterviewer();
+                    candidateInterviewer.setCandidateInterview(interview);
+                    
+                    // Set reference to existing interviewer
+                    Interviewer interviewer = new Interviewer();
+                    interviewer.setInterviewerId(interviewerId);
+                    candidateInterviewer.setInterviewer(interviewer);
+                    
+                    candidateInterviewerRepository.save(candidateInterviewer);
+                }
+                logger.info("New interviewer assignments created");
+            }
+
+            // Create response
+            return new ApiResponse("Interview status updated successfully");
+        } catch (Exception e) {
+            logger.error("Error updating interview status", e);
+            return new ApiResponse("Error updating interview status: " + e.getMessage());
+        }
     }
 }

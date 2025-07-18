@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
-@Table(name = "Candidate_Interviews")
+@Table(name = "candidate_interviews")
 public class CandidateInterview {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +24,9 @@ public class CandidateInterview {
 
     @Column(columnDefinition = "TEXT")
     private String feedback;
+
+    @Column(name = "meeting_link")
+    private String meetingLink;
 
     @Convert(converter = InterviewStatusConverter.class)
     @Column(columnDefinition = "ENUM('Pending', 'In progress', 'Completed', 'Selected', 'Rejected') DEFAULT 'Pending'")
@@ -114,6 +117,14 @@ public class CandidateInterview {
 
     public void setFeedback(String feedback) {
         this.feedback = feedback;
+    }
+
+    public String getMeetingLink() {
+        return meetingLink;
+    }
+
+    public void setMeetingLink(String meetingLink) {
+        this.meetingLink = meetingLink;
     }
 
     public InterviewStatus getStatus() {
