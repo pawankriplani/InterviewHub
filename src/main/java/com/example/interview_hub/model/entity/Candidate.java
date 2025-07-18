@@ -31,6 +31,12 @@ public class Candidate {
     @Column(name = "score")
     private Double score;
 
+    @Column(name = "resume_id", length = 50)
+    private String resumeId;
+
+    @Column(name = "evaluation_id", length = 50)
+    private String evaluationId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manager_id")
     private User manager;
@@ -106,5 +112,21 @@ public class Candidate {
 
     public void setScore(Double score) {
         this.score = score;
+    }
+
+    public String getResumeId() {
+        return resumeId;
+    }
+
+    public void setResumeId(String resumeId) {
+        this.resumeId = resumeId;
+    }
+
+    public String getEvaluationId() {
+        return evaluationId;
+    }
+
+    public void setEvaluationId(String evaluationId) {
+        this.evaluationId = evaluationId;
     }
 }

@@ -6,8 +6,10 @@ CREATE TABLE candidates (
     position_applied VARCHAR(100),
     job_details TEXT,
     manager_id INT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     score DOUBLE PRECISION,
+    resume_id VARCHAR(50),
+    evaluation_id VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (manager_id) REFERENCES USERS(user_id)
 );
 

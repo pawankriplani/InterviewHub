@@ -56,6 +56,8 @@ public class CandidateService {
                 candidate.setJobDetails(candidateData.getJobDetails());
                 candidate.setManager(manager);
                 candidate.setScore(candidateData.getScore());
+                candidate.setResumeId(candidateData.getResumeId());
+                candidate.setEvaluationId(candidateData.getEvaluationId());
 
                 Candidate savedCandidate = candidateRepository.save(candidate);
 

@@ -5,7 +5,12 @@ CREATE TABLE IF NOT EXISTS Candidates (
     phone VARCHAR(15),
     position_applied VARCHAR(100),
     job_details TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    manager_id INT,
+    score DOUBLE,
+    resume_id VARCHAR(50),
+    evaluation_id VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (manager_id) REFERENCES USERS(user_id)
 );
 
 CREATE TABLE IF NOT EXISTS Interview_Rounds (

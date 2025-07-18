@@ -34,6 +34,14 @@ public class CandidateRequest {
         @NotNull(message = "Score is required")
         private Double score;
 
+        @NotBlank(message = "Resume ID is required")
+        @Size(max = 50, message = "Resume ID must not exceed 50 characters")
+        private String resumeId;
+
+        @NotBlank(message = "Evaluation ID is required")
+        @Size(max = 50, message = "Evaluation ID must not exceed 50 characters")
+        private String evaluationId;
+
         // Getters and Setters
         public String getName() {
             return name;
@@ -81,6 +89,22 @@ public class CandidateRequest {
 
         public void setScore(Double score) {
             this.score = score;
+        }
+
+        public String getResumeId() {
+            return resumeId;
+        }
+
+        public void setResumeId(String resumeId) {
+            this.resumeId = resumeId;
+        }
+
+        public String getEvaluationId() {
+            return evaluationId;
+        }
+
+        public void setEvaluationId(String evaluationId) {
+            this.evaluationId = evaluationId;
         }
     }
 
