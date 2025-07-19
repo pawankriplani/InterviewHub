@@ -12,6 +12,7 @@ public class UpdateInterviewRequest {
     private String meetingLink;
     private LocalDateTime startMeetingTimeStamp;
     private LocalDateTime endMeetingTimeStamp;
+    private String feedback;
 
     // Getters and Setters
     // Note: scheduledAt getter and setter have been removed
@@ -77,5 +78,13 @@ public class UpdateInterviewRequest {
 
     public void setEndMeetingTimeStamp(LocalDateTime endMeetingTimeStamp) {
         this.endMeetingTimeStamp = endMeetingTimeStamp;
+    }
+
+    public String getFeedback() {
+        return feedback;
+    }
+
+    public void setFeedback(String feedback) {
+        this.feedback = feedback;
     }
 }
