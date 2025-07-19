@@ -10,7 +10,7 @@ public class CandidateResponse {
     private String status;
     private String feedback;
     private String jobDetails;
-    private Integer interviewerId;
+    private String interviewerId;
     private String interviewerEmail;
     private LocalDateTime scheduledAt;
     private LocalDateTime startMeetingTs;
@@ -102,11 +102,11 @@ public class CandidateResponse {
         this.jobDetails = jobDetails;
     }
 
-    public Integer getInterviewerId() {
+    public String getInterviewerId() {
         return interviewerId;
     }
 
-    public void setInterviewerId(Integer interviewerId) {
+    public void setInterviewerId(String interviewerId) {
         this.interviewerId = interviewerId;
     }
 
