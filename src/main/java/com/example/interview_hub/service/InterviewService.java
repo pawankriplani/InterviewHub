@@ -16,6 +16,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -143,35 +144,40 @@ public class InterviewService {
         try {
             logger.info("Updating interview status for candidate {} and round {}", request.getCandidateId(), request.getRoundId());
 
-            // Find or create CandidateInterview
-            CandidateInterview interview = candidateInterviewRepository
-                    .findByCandidateCandidateIdAndRoundRoundId(request.getCandidateId(), request.getRoundId())
-                    .orElseGet(() -> {
-                        CandidateInterview newInterview = new CandidateInterview();
-                        
-                        // Set candidate
-                        Candidate candidate = candidateRepository.findById(request.getCandidateId())
-                                .orElseThrow(() -> new RuntimeException("Candidate not found"));
-                        newInterview.setCandidate(candidate);
-                        
-                        // Set round
-                        InterviewRound round = interviewRoundRepository.findById(request.getRoundId())
-                                .orElseThrow(() -> new RuntimeException("Interview round not found"));
-                        newInterview.setRound(round);
-                        
-                        // Set creation timestamp
-                        newInterview.setCreatedAt(LocalDateTime.now());
-                        
-                        return newInterview;
-                    });
+            // Check for existing round 1 interview with Pending status when moving to higher round
+            if (request.getRoundId() > 1) {
+                Optional<CandidateInterview> round1Interview = candidateInterviewRepository
+                    .findByCandidateCandidateIdAndRoundRoundIdAndStatus(request.getCandidateId(), 1, "Pending");
+                
+                if (round1Interview.isPresent()) {
+                    // Update round 1 interview status to Selected
+                    CandidateInterview interview = round1Interview.get();
+                    interview.setStatus("Selected");
+                    candidateInterviewRepository.save(interview);
+                    logger.info("Updated round 1 interview status to Selected for candidate {}", request.getCandidateId());
+                }
+            }
 
-            // Update interview details
-            interview.setStatus("In progress");
-            interview.setMeetingLink(request.getMeetingLink());
-            interview.setInterviewerId(request.getInterviewerId()); // This now accepts a String
-            interview.setInterviewerEmail(request.getInterviewerEmail());
-            interview.setStartMeetingTs(request.getStartMeetingTimeStamp());
-            interview.setEndMeetingTs(request.getEndMeetingTimeStamp());
+            // Find or create CandidateInterview
+            CandidateInterview interview = findOrCreateInterview(request);
+
+            // Check if status is Selected or Rejected
+            if ("Selected".equals(request.getStatus()) || "Rejected".equals(request.getStatus())) {
+                // Only update status and feedback
+                interview.setStatus(request.getStatus());
+                interview.setFeedback(request.getFeedback());
+                logger.info("Updated status to {} for candidate {} and round {}", request.getStatus(), request.getCandidateId(), request.getRoundId());
+            } else {
+                // Update all fields (current behavior)
+                interview.setStatus("In progress");
+                interview.setMeetingLink(request.getMeetingLink());
+                interview.setInterviewerId(request.getInterviewerId());
+                interview.setInterviewerEmail(request.getInterviewerEmail());
+                interview.setStartMeetingTs(request.getStartMeetingTimeStamp());
+                interview.setEndMeetingTs(request.getEndMeetingTimeStamp());
+                interview.setFeedback(request.getFeedback());
+                logger.info("Updated all interview details for candidate {} and round {}", request.getCandidateId(), request.getRoundId());
+            }
 
             // Save the interview
             interview = candidateInterviewRepository.save(interview);
@@ -182,5 +188,28 @@ public class InterviewService {
             logger.error("Error updating interview status", e);
             return new ApiResponse("Error updating interview status: " + e.getMessage());
         }
+    }
+
+    private CandidateInterview findOrCreateInterview(UpdateInterviewRequest request) {
+        return candidateInterviewRepository
+                .findByCandidateCandidateIdAndRoundRoundId(request.getCandidateId(), request.getRoundId())
+                .orElseGet(() -> {
+                    CandidateInterview newInterview = new CandidateInterview();
+                    
+                    // Set candidate
+                    Candidate candidate = candidateRepository.findById(request.getCandidateId())
+                            .orElseThrow(() -> new RuntimeException("Candidate not found"));
+                    newInterview.setCandidate(candidate);
+                    
+                    // Set round
+                    InterviewRound round = interviewRoundRepository.findById(request.getRoundId())
+                            .orElseThrow(() -> new RuntimeException("Interview round not found"));
+                    newInterview.setRound(round);
+                    
+                    // Set creation timestamp
+                    newInterview.setCreatedAt(LocalDateTime.now());
+                    
+                    return newInterview;
+                });
     }
 }

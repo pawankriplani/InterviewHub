@@ -14,6 +14,8 @@ import java.util.Optional;
 public interface CandidateInterviewRepository extends JpaRepository<CandidateInterview, Integer> {
     Optional<CandidateInterview> findByCandidateCandidateIdAndRoundRoundId(Integer candidateId, Integer roundId);
 
+    Optional<CandidateInterview> findByCandidateCandidateIdAndRoundRoundIdAndStatus(Integer candidateId, Integer roundId, String status);
+
     @Modifying
     @Query("UPDATE CandidateInterview ci SET ci.status = 'Completed' " +
            "WHERE ci.endMeetingTs <= :currentTime")
