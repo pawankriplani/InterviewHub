@@ -6,7 +6,7 @@ import java.util.List;
 public class UpdateInterviewRequest {
     private Integer candidateId;
     private Integer roundId;
-    private Integer interviewerId;
+    private String interviewerId;
     private String interviewerEmail;
     private String status;
     private String meetingLink;
@@ -14,6 +14,7 @@ public class UpdateInterviewRequest {
     private LocalDateTime endMeetingTimeStamp;
 
     // Getters and Setters
+    // Note: scheduledAt getter and setter have been removed
     public Integer getCandidateId() {
         return candidateId;
     }
@@ -30,11 +31,11 @@ public class UpdateInterviewRequest {
         this.roundId = roundId;
     }
 
-    public Integer getInterviewerId() {
+    public String getInterviewerId() {
         return interviewerId;
     }
 
-    public void setInterviewerId(Integer interviewerId) {
+    public void setInterviewerId(String interviewerId) {
         this.interviewerId = interviewerId;
     }
 

@@ -19,13 +19,11 @@ public class CandidateInterview {
     private InterviewRound round;
 
     @Column(name = "interviewer_id")
-    private Integer interviewerId;
+    private String interviewerId;
 
     @Column(name = "interviewer_email", length = 100)
     private String interviewerEmail;
 
-    @Column(name = "scheduled_at")
-    private LocalDateTime scheduledAt;
 
     @Column(name = "start_meeting_ts")
     private LocalDateTime startMeetingTs;
@@ -70,11 +68,11 @@ public class CandidateInterview {
         this.round = round;
     }
 
-    public Integer getInterviewerId() {
+    public String getInterviewerId() {
         return interviewerId;
     }
 
-    public void setInterviewerId(Integer interviewerId) {
+    public void setInterviewerId(String interviewerId) {
         this.interviewerId = interviewerId;
     }
 
@@ -86,13 +84,6 @@ public class CandidateInterview {
         this.interviewerEmail = interviewerEmail;
     }
 
-    public LocalDateTime getScheduledAt() {
-        return scheduledAt;
-    }
-
-    public void setScheduledAt(LocalDateTime scheduledAt) {
-        this.scheduledAt = scheduledAt;
-    }
 
     public LocalDateTime getStartMeetingTs() {
         return startMeetingTs;

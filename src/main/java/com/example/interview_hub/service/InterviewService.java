@@ -92,7 +92,6 @@ public class InterviewService {
         response.setResumeId(interview.getCandidate().getResumeId());
         response.setInterviewerId(interview.getInterviewerId());
         response.setInterviewerEmail(interview.getInterviewerEmail());
-        response.setScheduledAt(interview.getScheduledAt());
         response.setStartMeetingTs(interview.getStartMeetingTs());
         response.setEndMeetingTs(interview.getEndMeetingTs());
         response.setMeetingLink(interview.getMeetingLink());
@@ -160,14 +159,16 @@ public class InterviewService {
                                 .orElseThrow(() -> new RuntimeException("Interview round not found"));
                         newInterview.setRound(round);
                         
+                        // Set creation timestamp
+                        newInterview.setCreatedAt(LocalDateTime.now());
+                        
                         return newInterview;
                     });
 
             // Update interview details
             interview.setStatus("In progress");
-            interview.setScheduledAt(request.getEndMeetingTimeStamp());
             interview.setMeetingLink(request.getMeetingLink());
-            interview.setInterviewerId(request.getInterviewerId());
+            interview.setInterviewerId(request.getInterviewerId()); // This now accepts a String
             interview.setInterviewerEmail(request.getInterviewerEmail());
             interview.setStartMeetingTs(request.getStartMeetingTimeStamp());
             interview.setEndMeetingTs(request.getEndMeetingTimeStamp());
