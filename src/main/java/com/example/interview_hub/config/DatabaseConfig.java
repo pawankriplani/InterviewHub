@@ -1,10 +1,13 @@
 package com.example.interview_hub.config;
 
 import com.zaxxer.hikari.HikariDataSource;
+
+import jakarta.annotation.PreDestroy;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.PreDestroy;
+
 import javax.sql.DataSource;
 
 @Configuration
