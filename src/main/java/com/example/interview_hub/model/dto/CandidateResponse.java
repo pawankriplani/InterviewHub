@@ -2,6 +2,7 @@ package com.example.interview_hub.model.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import com.example.interview_hub.model.dto.Interviewer;
 
 public class CandidateResponse {
     private Integer candidateId;
@@ -10,8 +11,7 @@ public class CandidateResponse {
     private String status;
     private String feedback;
     private String jobDetails;
-    private String interviewerId;
-    private String interviewerEmail;
+    private List<Interviewer> interviewers;
     private LocalDateTime scheduledAt;
     private LocalDateTime startMeetingTs;
     private LocalDateTime endMeetingTs;
@@ -102,20 +102,12 @@ public class CandidateResponse {
         this.jobDetails = jobDetails;
     }
 
-    public String getInterviewerId() {
-        return interviewerId;
+    public List<Interviewer> getInterviewers() {
+        return interviewers;
     }
 
-    public void setInterviewerId(String interviewerId) {
-        this.interviewerId = interviewerId;
-    }
-
-    public String getInterviewerEmail() {
-        return interviewerEmail;
-    }
-
-    public void setInterviewerEmail(String interviewerEmail) {
-        this.interviewerEmail = interviewerEmail;
+    public void setInterviewers(List<Interviewer> interviewers) {
+        this.interviewers = interviewers;
     }
 
     public LocalDateTime getScheduledAt() {

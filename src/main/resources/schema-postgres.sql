@@ -25,8 +25,6 @@ CREATE TABLE Candidate_Interviews (
     candidate_interview_id SERIAL PRIMARY KEY,
     candidate_id INT,
     round_id INT,
-    interviewer_id VARCHAR(50),
-    interviewer_email VARCHAR(100),
     start_meeting_ts TIMESTAMP,
     end_meeting_ts TIMESTAMP,
     feedback TEXT,
@@ -36,4 +34,13 @@ CREATE TABLE Candidate_Interviews (
 
     FOREIGN KEY (candidate_id) REFERENCES Candidates(candidate_id),
     FOREIGN KEY (round_id) REFERENCES Interview_Rounds(round_id)
+);
+
+CREATE TABLE Candidate_Interviewer (
+    id SERIAL PRIMARY KEY,
+    candidate_interview_id INT,
+    interviewer_id VARCHAR(50),
+    interviewer_email VARCHAR(100),
+
+    FOREIGN KEY (candidate_interview_id) REFERENCES Candidate_Interviews(candidate_interview_id)
 );

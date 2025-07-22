@@ -98,12 +98,16 @@ public class InterviewService {
         response.setResumeId(interview.getCandidate().getResumeId());
         
         // Get interviewers from CandidateInterviewer
-        List<CandidateInterviewer> interviewers = candidateInterviewerRepository.findByCandidateInterviewCandidateInterviewId(interview.getCandidateInterviewId());
-        if (!interviewers.isEmpty()) {
-            CandidateInterviewer firstInterviewer = interviewers.get(0);
-            response.setInterviewerId(firstInterviewer.getInterviewerId());
-            response.setInterviewerEmail(firstInterviewer.getInterviewerEmail());
-        }
+        List<CandidateInterviewer> candidateInterviewers = candidateInterviewerRepository.findByCandidateInterviewCandidateInterviewId(interview.getCandidateInterviewId());
+        List<Interviewer> interviewers = candidateInterviewers.stream()
+            .map(ci -> {
+                Interviewer interviewer = new Interviewer();
+                interviewer.setInterviewerId(ci.getInterviewerId());
+                interviewer.setInterviewerEmail(ci.getInterviewerEmail());
+                return interviewer;
+            })
+            .collect(Collectors.toList());
+        response.setInterviewers(interviewers);
         
         response.setStartMeetingTs(interview.getStartMeetingTs());
         response.setEndMeetingTs(interview.getEndMeetingTs());
