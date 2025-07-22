@@ -1,7 +1,7 @@
 package com.example.interview_hub.controller;
 
 import com.example.interview_hub.model.dto.ApiResponse;
-import com.example.interview_hub.model.dto.CandidateRequest;
+import com.example.interview_hub.model.dto.ShortlistRequest;
 import com.example.interview_hub.service.CandidateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,8 +20,8 @@ public class CandidateController {
     }
 
     @PostMapping("/shortlist")
-    public ResponseEntity<ApiResponse> createCandidates(@RequestBody CandidateRequest candidateRequest) {
-        boolean success = candidateService.createCandidates(candidateRequest);
+    public ResponseEntity<ApiResponse> shortlistCandidates(@RequestBody ShortlistRequest shortlistRequest) {
+        boolean success = candidateService.shortlistCandidates(shortlistRequest);
         if (success) {
             return new ResponseEntity<>(new ApiResponse("Candidates shortlisted successfully"), HttpStatus.CREATED);
         } else {
