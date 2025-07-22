@@ -3,6 +3,7 @@ package com.example.interview_hub.service;
 import com.example.interview_hub.model.dto.*;
 import com.example.interview_hub.model.entity.*;
 import com.example.interview_hub.repository.*;
+import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import com.example.interview_hub.model.dto.Interviewer;
 
 @Service
 public class InterviewService {
@@ -28,17 +30,20 @@ public class InterviewService {
     private final UserRepository userRepository;
     private final CandidateInterviewRepository candidateInterviewRepository;
     private final CandidateRepository candidateRepository;
+    private final CandidateInterviewerRepository candidateInterviewerRepository;
 
     @Autowired
     public InterviewService(
             InterviewRoundRepository interviewRoundRepository,
             UserRepository userRepository,
             CandidateInterviewRepository candidateInterviewRepository,
-            CandidateRepository candidateRepository) {
+            CandidateRepository candidateRepository,
+            CandidateInterviewerRepository candidateInterviewerRepository) {
         this.interviewRoundRepository = interviewRoundRepository;
         this.userRepository = userRepository;
         this.candidateInterviewRepository = candidateInterviewRepository;
         this.candidateRepository = candidateRepository;
+        this.candidateInterviewerRepository = candidateInterviewerRepository;
     }
 
     @Transactional
@@ -91,8 +96,15 @@ public class InterviewService {
         response.setFeedback(interview.getFeedback());
         response.setJobDetails(interview.getCandidate().getJobDetails());
         response.setResumeId(interview.getCandidate().getResumeId());
-        response.setInterviewerId(interview.getInterviewerId());
-        response.setInterviewerEmail(interview.getInterviewerEmail());
+        
+        // Get interviewers from CandidateInterviewer
+        List<CandidateInterviewer> interviewers = candidateInterviewerRepository.findByCandidateInterviewCandidateInterviewId(interview.getCandidateInterviewId());
+        if (!interviewers.isEmpty()) {
+            CandidateInterviewer firstInterviewer = interviewers.get(0);
+            response.setInterviewerId(firstInterviewer.getInterviewerId());
+            response.setInterviewerEmail(firstInterviewer.getInterviewerEmail());
+        }
+        
         response.setStartMeetingTs(interview.getStartMeetingTs());
         response.setEndMeetingTs(interview.getEndMeetingTs());
         response.setMeetingLink(interview.getMeetingLink());
@@ -171,8 +183,6 @@ public class InterviewService {
                 // Update all fields (current behavior)
                 interview.setStatus("In progress");
                 interview.setMeetingLink(request.getMeetingLink());
-                interview.setInterviewerId(request.getInterviewerId());
-                interview.setInterviewerEmail(request.getInterviewerEmail());
                 interview.setStartMeetingTs(request.getStartMeetingTimeStamp());
                 interview.setEndMeetingTs(request.getEndMeetingTimeStamp());
                 interview.setFeedback(request.getFeedback());
@@ -181,7 +191,31 @@ public class InterviewService {
 
             // Save the interview
             interview = candidateInterviewRepository.save(interview);
-            logger.info("Interview updated successfully");
+
+            // Update or create CandidateInterviewers
+            List<CandidateInterviewer> existingInterviewers = candidateInterviewerRepository
+                .findByCandidateInterviewCandidateInterviewId(interview.getCandidateInterviewId());
+
+            // Remove existing interviewers not in the new list
+            existingInterviewers.removeIf(existing -> 
+                request.getInterviewers().stream()
+                    .noneMatch(newInterviewer -> 
+                        existing.getInterviewerId().equals(newInterviewer.getInterviewerId())));
+
+            // Update or add new interviewers
+            for (Interviewer newInterviewer : request.getInterviewers()) {
+                CandidateInterviewer interviewer = existingInterviewers.stream()
+                    .filter(existing -> existing.getInterviewerId().equals(newInterviewer.getInterviewerId()))
+                    .findFirst()
+                    .orElse(new CandidateInterviewer());
+
+                interviewer.setCandidateInterview(interview);
+                interviewer.setInterviewerId(newInterviewer.getInterviewerId());
+                interviewer.setInterviewerEmail(newInterviewer.getInterviewerEmail());
+                candidateInterviewerRepository.save(interviewer);
+            }
+
+            logger.info("Interview and interviewers details updated successfully");
 
             return new ApiResponse("Interview status updated successfully");
         } catch (Exception e) {

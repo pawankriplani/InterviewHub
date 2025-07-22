@@ -3,11 +3,11 @@ package com.example.interview_hub.model.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+
 public class UpdateInterviewRequest {
     private Integer candidateId;
     private Integer roundId;
-    private String interviewerId;
-    private String interviewerEmail;
+    private List<Interviewer> interviewers;
     private String status;
     private String meetingLink;
     private LocalDateTime startMeetingTimeStamp;
@@ -32,20 +32,12 @@ public class UpdateInterviewRequest {
         this.roundId = roundId;
     }
 
-    public String getInterviewerId() {
-        return interviewerId;
+    public List<Interviewer> getInterviewers() {
+        return interviewers;
     }
 
-    public void setInterviewerId(String interviewerId) {
-        this.interviewerId = interviewerId;
-    }
-
-    public String getInterviewerEmail() {
-        return interviewerEmail;
-    }
-
-    public void setInterviewerEmail(String interviewerEmail) {
-        this.interviewerEmail = interviewerEmail;
+    public void setInterviewers(List<Interviewer> interviewers) {
+        this.interviewers = interviewers;
     }
 
     public String getStatus() {
