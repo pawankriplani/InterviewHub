@@ -96,6 +96,7 @@ public class InterviewService {
         response.setFeedback(interview.getFeedback());
         response.setJobDetails(interview.getCandidate().getJobDetails());
         response.setResumeId(interview.getCandidate().getResumeId());
+        response.setJobDescription(interview.getCandidate().getJobDescription());
         
         // Get interviewers from CandidateInterviewer
         List<CandidateInterviewer> candidateInterviewers = candidateInterviewerRepository.findByCandidateInterviewCandidateInterviewId(interview.getCandidateInterviewId());

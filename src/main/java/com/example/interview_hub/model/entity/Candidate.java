@@ -42,7 +42,7 @@ public class Candidate {
     @JoinColumn(name = "manager_id")
     private User manager;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "job_description_id")
     private JobDescription jobDescription;
 

@@ -3,6 +3,7 @@ package com.example.interview_hub.model.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 import com.example.interview_hub.model.dto.Interviewer;
+import com.example.interview_hub.model.entity.JobDescription;
 
 public class CandidateResponse {
     private Integer candidateId;
@@ -20,6 +21,7 @@ public class CandidateResponse {
     private List<InterviewRoundHistory> interviewHistory;
     private Double score;
     private String resumeId;
+    private JobDescription jobDescription;
 
     public static class InterviewRoundHistory {
         private Integer roundNumber;
@@ -180,5 +182,13 @@ public class CandidateResponse {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public JobDescription getJobDescription() {
+        return jobDescription;
+    }
+
+    public void setJobDescription(JobDescription jobDescription) {
+        this.jobDescription = jobDescription;
     }
 }
