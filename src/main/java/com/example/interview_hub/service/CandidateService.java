@@ -1,20 +1,20 @@
 package com.example.interview_hub.service;
 
 import com.example.interview_hub.model.dto.CandidateRequest;
-import com.example.interview_hub.model.dto.CandidateResponse;
+import com.example.interview_hub.model.dto.ShortlistRequest;
+import com.example.interview_hub.model.dto.JobDescriptionRequest;
 import com.example.interview_hub.model.entity.Candidate;
 import com.example.interview_hub.model.entity.CandidateInterview;
 import com.example.interview_hub.model.entity.InterviewRound;
 import com.example.interview_hub.model.entity.User;
-import com.example.interview_hub.repository.CandidateInterviewRepository;
-import com.example.interview_hub.repository.CandidateRepository;
-import com.example.interview_hub.repository.InterviewRoundRepository;
-import com.example.interview_hub.repository.UserRepository;
+import com.example.interview_hub.model.entity.JobDescription;
+import com.example.interview_hub.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityNotFoundException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,39 +25,47 @@ public class CandidateService {
     private final UserRepository userRepository;
     private final InterviewRoundRepository interviewRoundRepository;
     private final CandidateInterviewRepository candidateInterviewRepository;
+    private final JobDescriptionRepository jobDescriptionRepository;
 
     @Autowired
     public CandidateService(CandidateRepository candidateRepository, 
-                          UserRepository userRepository,
-                          InterviewRoundRepository interviewRoundRepository,
-                          CandidateInterviewRepository candidateInterviewRepository) {
+                            UserRepository userRepository,
+                            InterviewRoundRepository interviewRoundRepository,
+                            CandidateInterviewRepository candidateInterviewRepository,
+                            JobDescriptionRepository jobDescriptionRepository) {
         this.candidateRepository = candidateRepository;
         this.userRepository = userRepository;
         this.interviewRoundRepository = interviewRoundRepository;
         this.candidateInterviewRepository = candidateInterviewRepository;
+        this.jobDescriptionRepository = jobDescriptionRepository;
     }
 
-@Transactional
-    public boolean createCandidates(CandidateRequest candidateRequest) {
+    @Transactional
+    public boolean shortlistCandidates(ShortlistRequest shortlistRequest) {
         try {
-            User manager = userRepository.findById(candidateRequest.getManagerId())
+            User manager = userRepository.findById(shortlistRequest.getManagerId())
                     .orElseThrow(() -> new EntityNotFoundException("Manager not found"));
+
+            // Create and save JobDescription
+            JobDescription jobDescription = createJobDescription(shortlistRequest.getJobDescription());
+            JobDescription savedJobDescription = jobDescriptionRepository.save(jobDescription);
 
             // Find Round 1 once for all candidates
             InterviewRound round1 = interviewRoundRepository.findById(1)
                     .orElseThrow(() -> new EntityNotFoundException("Round 1 not found"));
 
-            for (CandidateRequest.CandidateData candidateData : candidateRequest.getCandidates()) {
+            for (CandidateRequest candidateRequest : shortlistRequest.getCandidates()) {
                 Candidate candidate = new Candidate();
-                candidate.setName(candidateData.getName());
-                candidate.setEmail(candidateData.getEmail());
-                candidate.setPhone(candidateData.getPhone());
-                candidate.setPositionApplied(candidateData.getPositionApplied());
-                candidate.setJobDetails(candidateData.getJobDetails());
+                candidate.setName(candidateRequest.getName());
+                candidate.setEmail(candidateRequest.getEmail());
+                candidate.setPhone(candidateRequest.getPhone());
+                candidate.setPositionApplied(candidateRequest.getPositionApplied());
+                candidate.setJobDetails(candidateRequest.getJobDetails());
                 candidate.setManager(manager);
-                candidate.setScore(candidateData.getScore());
-                candidate.setResumeId(candidateData.getResumeId());
-                candidate.setEvaluationId(candidateData.getEvaluationId());
+                candidate.setScore(candidateRequest.getScore());
+                candidate.setResumeId(candidateRequest.getResumeId());
+                candidate.setEvaluationId(candidateRequest.getEvaluationId());
+                candidate.setJobDescription(savedJobDescription);
 
                 Candidate savedCandidate = candidateRepository.save(candidate);
 
@@ -66,7 +74,7 @@ public class CandidateService {
                 candidateInterview.setCandidate(savedCandidate);
                 candidateInterview.setRound(round1);
                 candidateInterview.setStatus("Pending");
-                candidateInterview.setCreatedAt(java.time.LocalDateTime.now());
+                candidateInterview.setCreatedAt(LocalDateTime.now());
 
                 candidateInterviewRepository.save(candidateInterview);
             }
@@ -76,5 +84,22 @@ public class CandidateService {
             // Log the exception if needed
             return false;
         }
+    }
+
+    private JobDescription createJobDescription(JobDescriptionRequest request) {
+        JobDescription jobDescription = new JobDescription();
+        jobDescription.setTitle(request.getTitle());
+        jobDescription.setLocation(request.getLocation());
+        jobDescription.setCompany(request.getCompany());
+        jobDescription.setOverview(request.getOverview());
+        jobDescription.setSummary(request.getSummary());
+        jobDescription.setResponsibilities(request.getResponsibilities());
+        jobDescription.setRequiredQualifications(request.getRequiredQualifications());
+        jobDescription.setPreferredQualifications(request.getPreferredQualifications());
+        jobDescription.setBenefits(request.getBenefits());
+        jobDescription.setTechnicalSkills(request.getTechnicalSkills());
+        jobDescription.setCreatedAt(LocalDateTime.now());
+        jobDescription.setUpdatedAt(LocalDateTime.now());
+        return jobDescription;
     }
 }

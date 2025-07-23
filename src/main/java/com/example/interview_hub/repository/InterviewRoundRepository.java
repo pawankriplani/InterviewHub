@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface InterviewRoundRepository extends JpaRepository<InterviewRound, Integer> {
     
-@EntityGraph(attributePaths = {"candidateInterviews", "candidateInterviews.candidate", "candidateInterviews.candidate.manager"})
+    @EntityGraph(attributePaths = {"candidateInterviews", "candidateInterviews.candidate", "candidateInterviews.candidate.manager", "candidateInterviews.candidate.jobDescription"})
     List<InterviewRound> findAll();
 }

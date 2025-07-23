@@ -2,6 +2,8 @@ package com.example.interview_hub.model.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "candidate_interviews")
@@ -18,11 +20,8 @@ public class CandidateInterview {
     @JoinColumn(name = "round_id")
     private InterviewRound round;
 
-    @Column(name = "interviewer_id")
-    private String interviewerId;
-
-    @Column(name = "interviewer_email", length = 100)
-    private String interviewerEmail;
+    @OneToMany(mappedBy = "candidateInterview", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CandidateInterviewer> interviewers = new ArrayList<>();
 
 
     @Column(name = "start_meeting_ts")
@@ -68,20 +67,12 @@ public class CandidateInterview {
         this.round = round;
     }
 
-    public String getInterviewerId() {
-        return interviewerId;
+    public List<CandidateInterviewer> getInterviewers() {
+        return interviewers;
     }
 
-    public void setInterviewerId(String interviewerId) {
-        this.interviewerId = interviewerId;
-    }
-
-    public String getInterviewerEmail() {
-        return interviewerEmail;
-    }
-
-    public void setInterviewerEmail(String interviewerEmail) {
-        this.interviewerEmail = interviewerEmail;
+    public void setInterviewers(List<CandidateInterviewer> interviewers) {
+        this.interviewers = interviewers;
     }
 
 

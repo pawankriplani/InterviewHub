@@ -2,6 +2,7 @@ package com.example.interview_hub.model.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.example.interview_hub.model.entity.JobDescription;
 
 @Entity
 @Table(name = "candidates")
@@ -40,6 +41,10 @@ public class Candidate {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manager_id")
     private User manager;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "job_description_id")
+    private JobDescription jobDescription;
 
     // Getters and Setters
     public Integer getCandidateId() {
@@ -128,5 +133,13 @@ public class Candidate {
 
     public void setEvaluationId(String evaluationId) {
         this.evaluationId = evaluationId;
+    }
+
+    public JobDescription getJobDescription() {
+        return jobDescription;
+    }
+
+    public void setJobDescription(JobDescription jobDescription) {
+        this.jobDescription = jobDescription;
     }
 }
