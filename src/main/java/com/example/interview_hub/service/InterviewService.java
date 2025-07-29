@@ -197,30 +197,34 @@ public class InterviewService {
             // Save the interview
             interview = candidateInterviewRepository.save(interview);
 
-            // Update or create CandidateInterviewers
-            List<CandidateInterviewer> existingInterviewers = candidateInterviewerRepository
-                .findByCandidateInterviewCandidateInterviewId(interview.getCandidateInterviewId());
+            // Update or create CandidateInterviewers only if interviewers are provided
+            if (request.getInterviewers() != null && !request.getInterviewers().isEmpty()) {
+                List<CandidateInterviewer> existingInterviewers = candidateInterviewerRepository
+                    .findByCandidateInterviewCandidateInterviewId(interview.getCandidateInterviewId());
 
-            // Remove existing interviewers not in the new list
-            existingInterviewers.removeIf(existing -> 
-                request.getInterviewers().stream()
-                    .noneMatch(newInterviewer -> 
-                        existing.getInterviewerId().equals(newInterviewer.getInterviewerId())));
+                // Remove existing interviewers not in the new list
+                existingInterviewers.removeIf(existing -> 
+                    request.getInterviewers().stream()
+                        .noneMatch(newInterviewer -> 
+                            existing.getInterviewerId().equals(newInterviewer.getInterviewerId())));
 
-            // Update or add new interviewers
-            for (Interviewer newInterviewer : request.getInterviewers()) {
-                CandidateInterviewer interviewer = existingInterviewers.stream()
-                    .filter(existing -> existing.getInterviewerId().equals(newInterviewer.getInterviewerId()))
-                    .findFirst()
-                    .orElse(new CandidateInterviewer());
+                // Update or add new interviewers
+                for (Interviewer newInterviewer : request.getInterviewers()) {
+                    CandidateInterviewer interviewer = existingInterviewers.stream()
+                        .filter(existing -> existing.getInterviewerId().equals(newInterviewer.getInterviewerId()))
+                        .findFirst()
+                        .orElse(new CandidateInterviewer());
 
-                interviewer.setCandidateInterview(interview);
-                interviewer.setInterviewerId(newInterviewer.getInterviewerId());
-                interviewer.setInterviewerEmail(newInterviewer.getInterviewerEmail());
-                candidateInterviewerRepository.save(interviewer);
+                    interviewer.setCandidateInterview(interview);
+                    interviewer.setInterviewerId(newInterviewer.getInterviewerId());
+                    interviewer.setInterviewerEmail(newInterviewer.getInterviewerEmail());
+                    candidateInterviewerRepository.save(interviewer);
+                }
+
+                logger.info("Interview and interviewers details updated successfully");
+            } else {
+                logger.info("Interview details updated successfully (no interviewers provided)");
             }
-
-            logger.info("Interview and interviewers details updated successfully");
 
             return new ApiResponse("Interview status updated successfully");
         } catch (Exception e) {
