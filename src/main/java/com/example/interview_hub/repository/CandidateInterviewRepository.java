@@ -20,5 +20,4 @@ public interface CandidateInterviewRepository extends JpaRepository<CandidateInt
     @Query("UPDATE CandidateInterview ci SET ci.status = 'Completed' " +
            "WHERE ci.endMeetingTs <= :currentTime")
     void updateCompletedInterviews(@Param("currentTime") LocalDateTime currentTime);
-
 }
