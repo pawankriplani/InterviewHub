@@ -3,6 +3,7 @@ package com.example.interview_hub.repository;
 import com.example.interview_hub.model.entity.InterviewRound;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -12,4 +13,7 @@ public interface InterviewRoundRepository extends JpaRepository<InterviewRound, 
     
     @EntityGraph(attributePaths = {"candidateInterviews", "candidateInterviews.candidate", "candidateInterviews.candidate.manager", "candidateInterviews.candidate.jobDescription"})
     List<InterviewRound> findAll();
+
+    @Query("SELECT MAX(ir.roundId) FROM InterviewRound ir")
+    Integer findMaxRoundId();
 }

@@ -49,6 +49,11 @@ public class InterviewService {
     @Transactional
     public List<InterviewRoundResponse> getAllInterviewRounds() {
         List<InterviewRound> rounds = interviewRoundRepository.findAll();
+        Integer lastRoundId = interviewRoundRepository.findMaxRoundId();
+        
+        // Calculate 15 days ago from today's date in Asia/Kolkata timezone
+        ZonedDateTime kolkataToday = ZonedDateTime.now(ZoneId.of("Asia/Kolkata"));
+        LocalDateTime fifteenDaysAgo = kolkataToday.minusDays(15).toLocalDateTime();
         
         // First, get each candidate's latest interview based on highest round ID
         Map<Integer, CandidateInterview> latestInterviews = rounds.stream()
@@ -78,6 +83,7 @@ public class InterviewService {
                     // Only include candidates whose latest round is this round
                     List<CandidateResponse> candidates = latestInterviews.values().stream()
                             .filter(interview -> interview != null && interview.getRound().getRoundId().equals(round.getRoundId()))
+                            .filter(interview -> shouldIncludeInterview(interview, fifteenDaysAgo, lastRoundId))
                             .map(interview -> mapToCandidateResponse(interview, allCandidateInterviews.get(interview.getCandidate().getCandidateId())))
                             .collect(Collectors.toList());
                     
@@ -85,6 +91,28 @@ public class InterviewService {
                     return response;
                 })
                 .collect(Collectors.toList());
+    }
+
+    private boolean shouldIncludeInterview(CandidateInterview interview, LocalDateTime fifteenDaysAgo, Integer lastRoundId) {
+        if (!"Selected".equals(interview.getStatus()) && !"Rejected".equals(interview.getStatus())) {
+            return true; // Include all non-Selected and non-Rejected interviews
+        }
+        
+        // Check updated_at against 15 days window
+        LocalDateTime updatedAt = interview.getUpdatedAt();
+        if (updatedAt == null) {
+            return false; // If no updated_at timestamp, don't include in 15-day filter
+        }
+        
+        if ("Selected".equals(interview.getStatus())) {
+            // For Selected status, check if it's the last round and within 15 days
+            boolean isLastRound = lastRoundId != null && 
+                                lastRoundId.equals(interview.getRound().getRoundId());
+            return isLastRound && updatedAt.isAfter(fifteenDaysAgo);
+        }
+        
+        // For Rejected status, just check if within 15 days
+        return updatedAt.isAfter(fifteenDaysAgo);
     }
 
     private CandidateResponse mapToCandidateResponse(CandidateInterview interview, List<CandidateInterview> candidateInterviews) {
@@ -236,6 +264,12 @@ public class InterviewService {
     private CandidateInterview findOrCreateInterview(UpdateInterviewRequest request) {
         return candidateInterviewRepository
                 .findByCandidateCandidateIdAndRoundRoundId(request.getCandidateId(), request.getRoundId())
+                .map(existingInterview -> {
+                    // Set updated_at for existing interview
+                    existingInterview.setUpdatedAt(LocalDateTime.now());
+                    logger.info("Updating existing interview for candidate {} and round {}", request.getCandidateId(), request.getRoundId());
+                    return existingInterview;
+                })
                 .orElseGet(() -> {
                     CandidateInterview newInterview = new CandidateInterview();
                     
@@ -249,9 +283,11 @@ public class InterviewService {
                             .orElseThrow(() -> new RuntimeException("Interview round not found"));
                     newInterview.setRound(round);
                     
-                    // Set creation timestamp
+                    // Set creation timestamp and explicitly set updated_at to null for new records
                     newInterview.setCreatedAt(LocalDateTime.now());
+                    newInterview.setUpdatedAt(null);
                     
+                    logger.info("Creating new interview for candidate {} and round {}", request.getCandidateId(), request.getRoundId());
                     return newInterview;
                 });
     }
