@@ -3,6 +3,8 @@ package com.example.interview_hub.service;
 import com.example.interview_hub.model.dto.CandidateRequest;
 import com.example.interview_hub.model.dto.ShortlistRequest;
 import com.example.interview_hub.model.dto.JobDescriptionRequest;
+import com.example.interview_hub.model.dto.CandidateLatestInterviewDTO;
+import com.example.interview_hub.model.dto.CandidateLatestInterviewProjection;
 import com.example.interview_hub.model.entity.Candidate;
 import com.example.interview_hub.model.entity.CandidateInterview;
 import com.example.interview_hub.model.entity.InterviewRound;
@@ -101,5 +103,30 @@ public class CandidateService {
         jobDescription.setCreatedAt(LocalDateTime.now());
         jobDescription.setUpdatedAt(LocalDateTime.now());
         return jobDescription;
+    }
+
+    public List<CandidateLatestInterviewDTO> getLatestInterviewsForAllCandidates() {
+        List<CandidateLatestInterviewProjection> projections = candidateInterviewRepository.findLatestInterviewsForAllCandidates();
+        return projections.stream()
+            .map(this::convertToDTO)
+            .toList();
+    }
+
+    public List<CandidateLatestInterviewDTO> getLatestInterviewsByManagerId(Integer managerId) {
+        List<CandidateLatestInterviewProjection> projections = candidateInterviewRepository.findLatestInterviewsByManagerId(managerId);
+        return projections.stream()
+            .map(this::convertToDTO)
+            .toList();
+    }
+
+    private CandidateLatestInterviewDTO convertToDTO(CandidateLatestInterviewProjection projection) {
+        return new CandidateLatestInterviewDTO(
+            projection.getCandidateId(),
+            projection.getCandidateName(),
+            projection.getRoundId(),
+            projection.getRoundName(),
+            projection.getFeedback(),
+            projection.getStatus()
+        );
     }
 }
