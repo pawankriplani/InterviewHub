@@ -2,6 +2,8 @@ package com.example.interview_hub.controller;
 
 import com.example.interview_hub.model.dto.ApiResponse;
 import com.example.interview_hub.model.dto.ShortlistRequest;
+import com.example.interview_hub.model.dto.CandidateLatestInterviewDTO;
+import java.util.List;
 import com.example.interview_hub.service.CandidateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,5 +29,17 @@ public class CandidateController {
         } else {
             return new ResponseEntity<>(new ApiResponse("Failed to shortlist candidates"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/latest-interviews")
+    public ResponseEntity<List<CandidateLatestInterviewDTO>> getLatestInterviewsForAllCandidates() {
+        List<CandidateLatestInterviewDTO> latestInterviews = candidateService.getLatestInterviewsForAllCandidates();
+        return ResponseEntity.ok(latestInterviews);
+    }
+
+    @GetMapping("/latest-interviews/manager/{managerId}")
+    public ResponseEntity<List<CandidateLatestInterviewDTO>> getLatestInterviewsByManagerId(@PathVariable Integer managerId) {
+        List<CandidateLatestInterviewDTO> latestInterviews = candidateService.getLatestInterviewsByManagerId(managerId);
+        return ResponseEntity.ok(latestInterviews);
     }
 }
