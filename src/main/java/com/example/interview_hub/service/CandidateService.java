@@ -1,15 +1,7 @@
 package com.example.interview_hub.service;
 
-import com.example.interview_hub.model.dto.CandidateRequest;
-import com.example.interview_hub.model.dto.ShortlistRequest;
-import com.example.interview_hub.model.dto.JobDescriptionRequest;
-import com.example.interview_hub.model.dto.CandidateLatestInterviewDTO;
-import com.example.interview_hub.model.dto.CandidateLatestInterviewProjection;
-import com.example.interview_hub.model.entity.Candidate;
-import com.example.interview_hub.model.entity.CandidateInterview;
-import com.example.interview_hub.model.entity.InterviewRound;
-import com.example.interview_hub.model.entity.User;
-import com.example.interview_hub.model.entity.JobDescription;
+import com.example.interview_hub.model.dto.*;
+import com.example.interview_hub.model.entity.*;
 import com.example.interview_hub.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,8 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CandidateService {
@@ -128,5 +120,54 @@ public class CandidateService {
             projection.getFeedback(),
             projection.getStatus()
         );
+    }
+
+    public List<CandidateInterviewHistoryResponse> getCandidateInterviewHistoryByManagerId(Integer managerId) {
+        List<CandidateInterviewHistoryProjection> projections = candidateInterviewRepository.findInterviewHistoryByManagerId(managerId);
+        
+        Map<Integer, List<CandidateInterviewHistoryProjection>> groupedByCandidateId = projections.stream()
+            .collect(Collectors.groupingBy(CandidateInterviewHistoryProjection::getCandidateId));
+        
+        return groupedByCandidateId.entrySet().stream()
+            .map(entry -> createCandidateResponse(entry.getKey(), entry.getValue()))
+            .collect(Collectors.toList());
+    }
+
+    private CandidateInterviewHistoryResponse createCandidateResponse(Integer candidateId, List<CandidateInterviewHistoryProjection> projections) {
+        if (projections == null || projections.isEmpty()) {
+            CandidateInterviewHistoryResponse response = new CandidateInterviewHistoryResponse();
+            response.setCandidateId(candidateId);
+            response.setInterviewHistory(new ArrayList<>());
+            return response;
+        }
+
+        CandidateInterviewHistoryResponse response = new CandidateInterviewHistoryResponse();
+        response.setCandidateId(candidateId);
+        response.setName(projections.get(0).getCandidateName());
+        response.setCurrentRound(projections.get(projections.size() - 1).getRoundNumber());
+        
+        List<CandidateInterviewHistoryResponse.InterviewRoundHistory> history = projections.stream()
+            .map(this::createInterviewRoundHistory)
+            .collect(Collectors.toList());
+        
+        response.setInterviewHistory(history);
+        return response;
+    }
+
+    private CandidateInterviewHistoryResponse.InterviewRoundHistory createInterviewRoundHistory(CandidateInterviewHistoryProjection projection) {
+        CandidateInterviewHistoryResponse.InterviewRoundHistory history = new CandidateInterviewHistoryResponse.InterviewRoundHistory();
+        history.setRoundNumber(projection.getRoundNumber());
+        history.setRoundName(projection.getRoundName());
+        history.setStatus(projection.getStatus());
+        history.setFeedback(projection.getFeedback());
+        history.setInterviewDateTime(projection.getInterviewDateTime());
+        
+        String interviewers = projection.getInterviewers();
+        if (interviewers != null && !interviewers.trim().isEmpty()) {
+            history.setInterviewers(Arrays.asList(interviewers.split(", ")));
+        } else {
+            history.setInterviewers(new ArrayList<>());
+        }
+        return history;
     }
 }

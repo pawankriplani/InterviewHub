@@ -7,8 +7,6 @@ public class CandidateInterviewHistoryResponse {
     private Integer candidateId;
     private String name;
     private Integer currentRound;
-    private String jobDetails;
-    private ManagerResponse manager;
     private List<InterviewRoundHistory> interviewHistory;
 
     public static class InterviewRoundHistory {
@@ -92,22 +90,6 @@ public class CandidateInterviewHistoryResponse {
 
     public void setCurrentRound(Integer currentRound) {
         this.currentRound = currentRound;
-    }
-
-    public String getJobDetails() {
-        return jobDetails;
-    }
-
-    public void setJobDetails(String jobDetails) {
-        this.jobDetails = jobDetails;
-    }
-
-    public ManagerResponse getManager() {
-        return manager;
-    }
-
-    public void setManager(ManagerResponse manager) {
-        this.manager = manager;
     }
 
     public List<InterviewRoundHistory> getInterviewHistory() {
