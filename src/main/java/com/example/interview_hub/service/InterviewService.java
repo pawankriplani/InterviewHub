@@ -96,17 +96,22 @@ public class InterviewService {
             return true; // Include all non-Selected and non-Rejected interviews
         }
         
-        // Check updated_at against 15 days window
         LocalDateTime updatedAt = interview.getUpdatedAt();
         if (updatedAt == null) {
-            return false; // If no updated_at timestamp, don't include in 15-day filter
+            return false; // If no updated_at timestamp, don't include
         }
         
         if ("Selected".equals(interview.getStatus())) {
-            // For Selected status, check if it's the last round and within 15 days
             boolean isLastRound = lastRoundId != null && 
                                 lastRoundId.equals(interview.getRound().getRoundId());
-            return isLastRound && updatedAt.isAfter(fifteenDaysAgo);
+            
+            if (isLastRound) {
+                // For Selected status in last round, apply 15-day filter
+                return updatedAt.isAfter(fifteenDaysAgo);
+            } else {
+                // For Selected status in any round below last round, always include
+                return true;
+            }
         }
         
         // For Rejected status, just check if within 15 days
