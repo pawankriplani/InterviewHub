@@ -130,6 +130,7 @@ public class CandidateService {
         
         return groupedByCandidateId.entrySet().stream()
             .map(entry -> createCandidateResponse(entry.getKey(), entry.getValue()))
+            .sorted(Comparator.comparing(CandidateInterviewHistoryResponse::getCandidateId))
             .collect(Collectors.toList());
     }
 
@@ -148,6 +149,7 @@ public class CandidateService {
         
         List<CandidateInterviewHistoryResponse.InterviewRoundHistory> history = projections.stream()
             .map(this::createInterviewRoundHistory)
+            .sorted(Comparator.comparing(CandidateInterviewHistoryResponse.InterviewRoundHistory::getRoundNumber))
             .collect(Collectors.toList());
         
         response.setInterviewHistory(history);
