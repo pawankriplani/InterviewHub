@@ -1,21 +1,19 @@
 package com.example.interview_hub.model.dto;
 
 public class ManagerResponse {
-    private Integer userId;
     private String fullName;
     private String email;
-    private String employeeId;
     
+    // Constructor
+    public ManagerResponse(String fullName, String email) {
+        this.fullName = fullName;
+        this.email = email;
+    }
+
+    // Default constructor
+    public ManagerResponse() {}
 
     // Getters and Setters
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
     public String getFullName() {
         return fullName;
     }
@@ -31,14 +29,4 @@ public class ManagerResponse {
     public void setEmail(String email) {
         this.email = email;
     }
-
-    public String getEmployeeId() {
-        return employeeId;
-    }
-
-    public void setEmployeeId(String employeeId) {
-        this.employeeId = employeeId;
-    }
-
-   
 }
