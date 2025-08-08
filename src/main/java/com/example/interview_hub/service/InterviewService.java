@@ -149,7 +149,7 @@ public class InterviewService {
         User manager = interview.getCandidate().getManager();
         if (manager != null) {
             ManagerResponse managerResponse = new ManagerResponse();
-            managerResponse.setFullName(manager.getFullName());
+            managerResponse.setName(manager.getFullName());
             managerResponse.setEmail(manager.getEmail());
             response.setManager(managerResponse);
         }

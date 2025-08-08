@@ -1,12 +1,12 @@
 package com.example.interview_hub.model.dto;
 
 public class ManagerResponse {
-    private String fullName;
+    private String name;
     private String email;
     
     // Constructor
-    public ManagerResponse(String fullName, String email) {
-        this.fullName = fullName;
+    public ManagerResponse(String name, String email) {
+        this.name = name;
         this.email = email;
     }
 
@@ -14,12 +14,12 @@ public class ManagerResponse {
     public ManagerResponse() {}
 
     // Getters and Setters
-    public String getFullName() {
-        return fullName;
+    public String getName() {
+        return name;
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {
