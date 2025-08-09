@@ -4,6 +4,7 @@ import com.example.interview_hub.model.dto.ApiResponse;
 import com.example.interview_hub.model.dto.ShortlistRequest;
 import com.example.interview_hub.model.dto.CandidateLatestInterviewDTO;
 import com.example.interview_hub.model.dto.CandidateInterviewHistoryResponse;
+import com.example.interview_hub.model.dto.ManagerResponse;
 import java.util.List;
 import com.example.interview_hub.service.CandidateService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,5 +49,11 @@ public class CandidateController {
     public ResponseEntity<List<CandidateInterviewHistoryResponse>> getCandidateInterviewHistory(@RequestParam Integer managerId) {
         List<CandidateInterviewHistoryResponse> interviewHistory = candidateService.getCandidateInterviewHistoryByManagerId(managerId);
         return ResponseEntity.ok(interviewHistory);
+    }
+
+    @GetMapping("/{candidateId}/manager")
+    public ResponseEntity<ManagerResponse> getCandidateManager(@PathVariable Integer candidateId) {
+        ManagerResponse manager = candidateService.getCandidateManager(candidateId);
+        return ResponseEntity.ok(manager);
     }
 }
