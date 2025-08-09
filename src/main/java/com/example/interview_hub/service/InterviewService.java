@@ -1,6 +1,11 @@
 package com.example.interview_hub.service;
 
-import com.example.interview_hub.model.dto.*;
+import com.example.interview_hub.model.dto.CandidateResponse;
+import com.example.interview_hub.model.dto.Interviewer;
+import com.example.interview_hub.model.dto.InterviewRoundResponse;
+import com.example.interview_hub.model.dto.ManagerResponse;
+import com.example.interview_hub.model.dto.UpdateInterviewRequest;
+import com.example.interview_hub.model.dto.UpdateStatusResponse;
 import com.example.interview_hub.model.entity.*;
 import com.example.interview_hub.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -186,7 +191,7 @@ public class InterviewService {
     }
 
     @Transactional
-    public ApiResponse updateInterviewStatus(UpdateInterviewRequest request) {
+    public UpdateStatusResponse updateInterviewStatus(UpdateInterviewRequest request) {
         try {
             logger.info("Updating interview status for candidate {} and round {}", request.getCandidateId(), request.getRoundId());
 
@@ -255,10 +260,16 @@ public class InterviewService {
                 logger.info("Interview details updated successfully (no interviewers provided)");
             }
 
-            return new ApiResponse("Interview status updated successfully");
+            return new UpdateStatusResponse("Interview status updated successfully", 200);
+        } catch (RuntimeException e) {
+            logger.error("Error updating interview status", e);
+            if (e.getMessage().contains("not found")) {
+                return new UpdateStatusResponse("Error: " + e.getMessage(), 404);
+            }
+            return new UpdateStatusResponse("Error: " + e.getMessage(), 400);
         } catch (Exception e) {
             logger.error("Error updating interview status", e);
-            return new ApiResponse("Error updating interview status: " + e.getMessage());
+            return new UpdateStatusResponse("Internal server error: " + e.getMessage(), 500);
         }
     }
 
