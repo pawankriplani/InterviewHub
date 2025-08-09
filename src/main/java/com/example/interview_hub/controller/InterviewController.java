@@ -1,8 +1,8 @@
 package com.example.interview_hub.controller;
 
-import com.example.interview_hub.model.dto.ApiResponse;
 import com.example.interview_hub.model.dto.InterviewRoundResponse;
 import com.example.interview_hub.model.dto.UpdateInterviewRequest;
+import com.example.interview_hub.model.dto.UpdateStatusResponse;
 import com.example.interview_hub.service.InterviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -36,8 +36,8 @@ public class InterviewController {
     }
 
     @PutMapping("/interviews/update-status")
-    public ResponseEntity<ApiResponse> updateInterviewStatus(@RequestBody UpdateInterviewRequest request) {
-        ApiResponse response = interviewService.updateInterviewStatus(request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<UpdateStatusResponse> updateInterviewStatus(@RequestBody UpdateInterviewRequest request) {
+        UpdateStatusResponse response = interviewService.updateInterviewStatus(request);
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 }
