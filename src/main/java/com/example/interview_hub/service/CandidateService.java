@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -171,5 +173,21 @@ public class CandidateService {
             history.setInterviewers(new ArrayList<>());
         }
         return history;
+    }
+
+    @Transactional(readOnly = true)
+    public ManagerResponse getCandidateManager(Integer candidateId) {
+        Candidate candidate = candidateRepository.findByIdWithManager(candidateId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Candidate not found"));
+    
+        User manager = candidate.getManager();
+        if (manager == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Manager not found for candidate");
+        }
+    
+        ManagerResponse response = new ManagerResponse();
+        response.setName(manager.getFullName());
+        response.setEmail(manager.getEmail());
+        return response;
     }
 }
