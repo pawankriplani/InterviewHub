@@ -4,7 +4,7 @@
 set -e
 
 # Configuration
-PROJECT_ID="telusrecruitai"
+PROJECT_ID="telusrecruitai-468907"
 REGION="asia-south1"
 SERVICE_NAME="interview-hub"
 IMAGE_NAME="interview-hub"
