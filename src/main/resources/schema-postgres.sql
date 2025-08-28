@@ -48,6 +48,8 @@ CREATE TABLE Candidate_Interviews (
     meeting_link TEXT,
     status VARCHAR(20) CHECK (status IN ('Pending', 'In progress', 'Completed', 'Selected', 'Rejected')) DEFAULT 'Pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
 
     FOREIGN KEY (candidate_id) REFERENCES Candidates(candidate_id),
     FOREIGN KEY (round_id) REFERENCES Interview_Rounds(round_id)
